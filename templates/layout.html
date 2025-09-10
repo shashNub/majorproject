@@ -1,4 +1,4 @@
-{% load static tailwind_tags %} {% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
@@ -15,7 +15,7 @@
     />
     <link rel="icon" type="image/png" href="{% static 'edit_pause.jpg' %}">
 
-    {% block styles %} {% endblock styles %} {% tailwind_css %}
+    {% block styles %} {% endblock styles %} <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
   </head>
   <body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
     <!-- Header -->

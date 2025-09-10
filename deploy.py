@@ -94,3 +94,4 @@ if __name__ == "__main__":
         print(generate_secret_key())
     else:
         prepare_deployment()
+

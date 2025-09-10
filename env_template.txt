@@ -12,3 +12,4 @@ CSRF_COOKIE_SECURE=True
 
 # Optional: Google AI API Key (if using chatbot features)
 GOOGLE_API_KEY=your-google-api-key-here
+

@@ -10,3 +10,4 @@ if __name__ == "__main__":
     print(f"SECRET_KEY={secret_key}")
     print(f"\nCopy this secret key for your Render.com environment variables:")
     print(f"SECRET_KEY={secret_key}")
+

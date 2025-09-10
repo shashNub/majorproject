@@ -56,3 +56,4 @@ Check the detailed [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for complete instr
 The Flask dashboard can be deployed separately:
 - Root Directory: `projet majeur/majorprojet - dashvaord`
 - Start Command: `gunicorn app:app --bind 0.0.0.0:$PORT`
+
