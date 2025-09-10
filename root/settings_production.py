@@ -108,6 +108,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'theme', 'static'),
 ]
 
+# Ensure static files are served correctly
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
 # WhiteNoise configuration for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

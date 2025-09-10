@@ -10,6 +10,9 @@ pip install -r requirements.txt
 # Collect static files
 python manage.py collectstatic --noinput --settings=root.settings_production
 
+# Verify CSS file exists
+ls -la staticfiles/css/dist/ || echo "CSS file not found in staticfiles"
+
 # Run database migrations
 python manage.py migrate --settings=root.settings_production
 
