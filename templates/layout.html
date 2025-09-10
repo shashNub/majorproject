@@ -1,0 +1,116 @@
+{% load static tailwind_tags %} {% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Government Job Navigator</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="icon" type="image/png" href="{% static 'edit_pause.jpg' %}">
+
+    {% block styles %} {% endblock styles %} {% tailwind_css %}
+  </head>
+  <body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header
+      class="sticky top-0 z-40 bg-blue-900/95 backdrop-blur shadow-md py-4 px-6 md:px-20 flex items-center justify-between"
+    >
+      <div class="flex items-center space-x-3">
+        <a href="{% url 'index' %}" class="flex items-center">
+          <i class="fas fa-briefcase text-white text-2xl mr-2"></i>
+          <span class="text-2xl font-bold text-white">GovJobs</span>
+        </a>
+      </div>
+      <nav class="hidden md:block space-x-4 md:space-x-6">
+        <a
+          href="{% url 'index' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Home</a
+        >
+        <a
+          href="{% url 'home' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Jobs</a
+        >
+        <a
+          href="{% url 'chatbot' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Chatbot</a
+        >
+        {% if user.is_authenticated %}
+        <a
+          href="{% url 'yourProfile' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Profile</a
+        >
+        <a
+          href="{% url 'logout' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Logout</a
+        >
+        <a
+          href="{% url 'dashboard' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Dashboard</a
+        >
+        {% else %}
+        <a
+          href="{% url 'login' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Login</a
+        >
+        <a
+          href="{% url 'register' %}"
+          class="text-gray-200 hover:text-white font-medium transition"
+          >Sign Up</a
+        >
+        {% endif %}
+      </nav>
+      <div class="flex items-center gap-3">
+        <button id="themeToggle" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-sm">
+          <i class="fa-solid fa-moon"></i>
+          <span>Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Modified container to be wider -->
+    <div class="container mx-auto px-4 py-8 md:px-20 text-gray-900 dark:text-gray-100">
+      {% block content %} {% endblock content %}
+    </div>
+    <script>
+      (function() {
+        const root = document.documentElement;
+        const stored = localStorage.getItem('theme');
+        // Default to dark if no preference stored
+        if (stored === 'light') {
+          root.classList.remove('dark');
+        } else {
+          root.classList.add('dark');
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+          const btn = document.getElementById('themeToggle');
+          if (!btn) return;
+          const apply = () => {
+            const isDark = root.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            btn.querySelector('span').textContent = isDark ? 'Light' : 'Dark';
+            btn.querySelector('i').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+          };
+          // initialize button label
+          const isDarkNow = root.classList.contains('dark');
+          btn.querySelector('span').textContent = isDarkNow ? 'Light' : 'Dark';
+          btn.querySelector('i').className = isDarkNow ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+          btn.addEventListener('click', apply);
+        });
+      })();
+    </script>
+  </body>
+</html>

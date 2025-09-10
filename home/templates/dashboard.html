@@ -1,0 +1,130 @@
+{% extends 'layout.html' %} {% block content %}
+
+<div class="container mx-auto p-4 text-gray-900 dark:text-gray-100">
+  <h1 class="text-2xl font-bold mb-4 text-blue-700 dark:text-blue-400">Job Postings Dashboard</h1>
+
+  {% if error %}
+  <div
+    class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded relative"
+    role="alert"
+  >
+    <strong class="font-bold">Error!</strong>
+    <span class="block sm:inline">{{ error }}</span>
+  </div>
+  {% else %}
+  <div
+    class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded relative"
+    role="alert"
+  >
+    <strong class="font-bold">Total Job Postings:</strong>
+    <span class="block sm:inline">{{ data.total_jobs }}</span>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-4">
+    <div id="jobs-by-date" class="mb-4"></div>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div id="qualification-distribution"></div>
+  </div>
+  {% endif %}
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  var jobsByDate = JSON.parse("{{ data.jobs_by_date|escapejs }}");
+  var qualificationDistribution = JSON.parse(
+    "{{ data.qualification_distribution|escapejs }}"
+  );
+
+  // Check if we're in dark mode
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  const textColor = isDarkMode ? '#e5e7eb' : '#374151';
+  const gridColor = isDarkMode ? '#4b5563' : '#e5e7eb';
+  const paperBg = isDarkMode ? '#1f2937' : '#ffffff';
+
+  // Jobs by Date Chart
+  Plotly.newPlot(
+    "jobs-by-date",
+    [
+      {
+        x: Object.keys(jobsByDate),
+        y: Object.values(jobsByDate),
+        type: "scatter",
+        mode: "lines+markers",
+        marker: { color: "#3b82f6", size: 8 },
+        line: { color: "#3b82f6", width: 3 },
+      },
+    ],
+    {
+      title: {
+        text: "Job Postings Over Time",
+        font: { color: textColor, size: 18 }
+      },
+      xaxis: { 
+        title: { text: "Date", font: { color: textColor } },
+        tickfont: { color: textColor },
+        gridcolor: gridColor,
+        showgrid: true
+      },
+      yaxis: { 
+        title: { text: "Number of Jobs", font: { color: textColor } },
+        tickfont: { color: textColor },
+        gridcolor: gridColor,
+        showgrid: true
+      },
+      paper_bgcolor: paperBg,
+      plot_bgcolor: paperBg,
+      font: { color: textColor },
+      margin: { t: 50, b: 50, l: 50, r: 50 }
+    }
+  );
+
+  // Qualification Distribution Chart - Show only top 10 to avoid clutter
+  const sortedQuals = Object.entries(qualificationDistribution)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+  
+  const topQuals = Object.fromEntries(sortedQuals);
+  const others = Object.entries(qualificationDistribution)
+    .sort((a, b) => b[1] - a[1])
+    .slice(10)
+    .reduce((sum, [_, count]) => sum + count, 0);
+
+  const pieData = [
+    {
+      values: [...Object.values(topQuals), others],
+      labels: [...Object.keys(topQuals), 'Others'],
+      type: "pie",
+      textinfo: "label+percent",
+      textfont: { color: textColor, size: 12 },
+      marker: {
+        colors: [
+          '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+          '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1', '#6b7280'
+        ]
+      }
+    }
+  ];
+
+  Plotly.newPlot(
+    "qualification-distribution",
+    pieData,
+    {
+      title: {
+        text: "Top 10 Qualification Distribution",
+        font: { color: textColor, size: 18 }
+      },
+      paper_bgcolor: paperBg,
+      plot_bgcolor: paperBg,
+      font: { color: textColor },
+      margin: { t: 50, b: 50, l: 50, r: 50 },
+      legend: {
+        font: { color: textColor, size: 12 },
+        orientation: "v",
+        x: 1.05,
+        y: 0.5
+      }
+    }
+  );
+</script>
+{% endblock %}

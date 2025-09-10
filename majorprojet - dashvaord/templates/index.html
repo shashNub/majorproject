@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Based Government Job Navigator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #ffffff;
+        --primary-color: #4a90e2;
+        --secondary-color: #2c3e50;
+        --accent-color: #e74c3c;
+        --border-color: #333333;
+        --hover-color: #3498db;
+      }
+
+      body { 
+        font-family: 'Roboto', sans-serif; 
+        margin: 0;
+        padding: 20px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        background-image: url('https://i.pinimg.com/736x/4a/29/f5/4a29f5894432b10ed543ccae39c93e17.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgba(26, 26, 26, 0.8);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+
+      .nav-links { 
+        margin-bottom: 30px;
+        padding: 15px;
+        background-color: var(--secondary-color);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      .nav-links a { 
+        margin-right: 20px;
+        text-decoration: none;
+        color: var(--text-color);
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover { 
+        color: var(--primary-color);
+      }
+
+      h1, h2 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        animation: slideIn 1s ease-in-out;
+      }
+
+      form { 
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: var(--secondary-color);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      select, button {
+        padding: 10px 15px;
+        margin: 5px 0;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      select {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        width: 200px;
+      }
+
+      button { 
+        background-color: var(--primary-color);
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-weight: 500;
+      }
+
+      button:hover { 
+        background-color: var(--hover-color);
+      }
+
+      table { 
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+        background-color: var(--secondary-color);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      th, td { 
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      th { 
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+      }
+
+      tr:hover {
+        background-color: rgba(74, 144, 226, 0.1);
+      }
+
+      .no-results { 
+        margin-top: 20px;
+        padding: 20px;
+        background-color: var(--secondary-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        text-align: center;
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .project-title {
+        font-size: 2em;
+        color: white;
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="project-title">AI-Based Government Job Navigator</div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      </div>
+      <h1>Job Search</h1>
+      <form method="POST">
+        <label for="qualification">Select Qualification:</label>
+        <select id="qualification" name="qualification">
+          <option value="">Select a qualification</option>
+          <option value="Any Graduate">Any Graduate</option>
+          <option value="8TH">8TH</option>
+          <option value="10TH">10TH</option>
+          <option value="12TH">12TH</option>
+          <option value="B.Ed">B.Ed</option>
+          <option value="B.Sc">B.Sc</option>
+          <option value="M.A">M.A</option>
+          <option value="MSW">MSW</option>
+          <option value="CA">CA</option>
+          <option value="M.Sc">M.Sc</option>
+          <option value="Any Post Graduate">Any Post Graduate</option>
+          <option value="BHMS">BHMS</option>
+          <option value="MBBS">MBBS</option>
+          <option value="MS/MD">MS/MD</option>
+          <option value="B.A">B.A</option>
+          <option value="Diploma">Diploma</option>
+          <option value="B.tech/B.E">B.tech/B.E</option>
+          <option value="LLB">LLB</option>
+          <option value="LLM">LLM</option>
+          <option value="MBA/PGDM">MBA/PGDM</option>
+        </select>
+        <br><br>
+        <label for="name">Search by Organization:</label>
+        <select id="name" name="name">
+          <option value="">Select an organization</option>
+          {% for org in organizations %}
+            <option value="{{ org }}" {% if name == org.lower() %}selected{% endif %}>{{ org }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Search</button>
+      </form>
+      <h2>Results:</h2>
+      {% if jobs %}
+        <table>
+          <tr>
+            {% for key in jobs[0].keys() %}
+              <th>{{ key }}</th>
+            {% endfor %}
+          </tr>
+          {% for job in jobs %}
+            <tr>
+              {% for value in job.values() %}
+                <td>{{ value }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <div class="no-results">
+          {% if qualification %}
+            <p>No jobs found for "{{ qualification }}".</p>
+          {% else %}
+            <p>Please select a qualification to search for jobs.</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Visuals Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head> 
+<body class="bg-gray-900 font-sans">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gradient-to-b from-gray-900 to-gray-800 shadow-xl p-6 flex flex-col sticky top-0 h-screen text-white border-r border-gray-700">
+      <h2 class="text-xl font-bold mb-6 text-blue-400">KENA</h2>
+      <nav class="space-y-4 flex-1">
+        <div>
+          <h3 class="text-sm text-gray-400 mb-2">Works</h3>
+          <ul class="space-y-2">
+            <li><a href="{{ url_for('index') }}" class="block text-blue-400 font-semibold hover:text-blue-300 transition">Job Search</a></li>
+            <li><a href="{{ url_for('dashboard') }}" class="block text-gray-300 hover:text-blue-300 transition">Dashboard</a></li>
+            <li><a href="#" class="block text-gray-300 hover:text-blue-300 transition">Documents</a></li>
+            <li><a href="#" class="block text-gray-300 hover:text-blue-300 transition">HR Projects</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-sm text-gray-400 mt-6 mb-2">Finances</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="block text-gray-300 hover:text-blue-300 transition">Revenues</a></li>
+            <li><a href="#" class="block text-gray-300 hover:text-blue-300 transition">Offers</a></li>
+            <li><a href="#" class="block text-gray-300 hover:text-blue-300 transition">Expenses</a></li>
+            <li><a href="#" class="block text-gray-300 hover:text-blue-300 transition">Products</a></li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-8 space-y-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <h1 class="text-3xl font-bold mb-6 text-blue-400">Job Postings Dashboard</h1>
+
+      <!-- Summary Cards -->
+      <section class="flex flex-wrap gap-6 mb-8 animate-fade-in">
+        <div class="flex-1 min-w-[220px] bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-xl shadow-xl p-6 flex flex-col items-center justify-center transition-transform transform hover:scale-105 border border-blue-700">
+          <span class="text-lg font-semibold mb-2 text-blue-200">Total Job Postings</span>
+          <span id="totalJobPostings" class="text-4xl font-bold tracking-wide text-blue-100 drop-shadow">0</span>
+        </div>
+        <div class="flex-1 min-w-[220px] bg-gradient-to-br from-gray-800 to-gray-700 text-blue-200 rounded-xl shadow-xl p-6 flex flex-col items-center justify-center transition-transform transform hover:scale-105 border border-gray-600">
+          <span class="text-lg font-semibold mb-2 text-blue-200">Top Qualification</span>
+          <span id="topQualification" class="text-2xl font-bold tracking-wide text-blue-100">-</span>
+        </div>
+        <div class="flex-1 min-w-[220px] bg-gradient-to-br from-gray-700 to-gray-800 text-blue-200 rounded-xl shadow-xl p-6 flex flex-col items-center justify-center transition-transform transform hover:scale-105 border border-gray-600">
+          <span class="text-lg font-semibold mb-2 text-blue-200">Most Common Deadline</span>
+          <span id="mostCommonDeadline" class="text-2xl font-bold tracking-wide text-blue-100">-</span>
+        </div>
+      </section>
+      <style>
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 1s cubic-bezier(0.4,0,0.2,1);
+        }
+      </style>
+
+      <!-- 1. Full-width chart -->
+      <section class="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl shadow w-full border border-gray-700">
+        <h2 class="text-xl font-semibold mb-3 text-blue-400">1. Job Postings Over Time</h2>
+        <div id="jobPostingsOverTime" class="w-full h-96"></div>
+      </section>
+
+      <!-- 2 & 3: Histogram + Box Plot side-by-side -->
+      <div class="flex flex-wrap gap-6">
+        <section class="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl shadow flex-1 min-w-[300px] border border-gray-700">
+          <h2 class="text-xl font-semibold mb-3 text-blue-400">2. Job Posting Lifecycle (Duration in Days) - Histogram</h2>
+          <div id="postingLifecycleHistogram" class="w-full h-80"></div>
+        </section>
+
+        <section class="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl shadow flex-1 min-w-[300px] border border-gray-700">
+          <h2 class="text-xl font-semibold mb-3 text-blue-400">3. Job Posting Lifecycle - Duration Box Plot</h2>
+          <div id="postingLifecycleBoxPlot" class="w-full h-[28rem]"></div>
+        </section>
+      </div>
+
+      <!-- 4. Bigger Pie Chart -->
+      <section class="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl shadow w-full border border-gray-700">
+        <h2 class="text-xl font-semibold mb-3 text-blue-400">4. Job Postings by Qualification Level (Top 20)</h2>
+        <div id="postingsByQualification" class="w-full h-[36rem]"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function parseDate(dateStr) {
+      const d = new Date(dateStr);
+      return isNaN(d) ? null : d;
+    }
+
+    // Fetch data from Flask endpoint
+    fetch('/get_job_data')
+      .then(res => res.json())
+      .then(data => processData(data));
+
+    function animateNumber(element, to, duration = 1200) {
+      let start = 0;
+      const step = Math.ceil(to / (duration / 16));
+      function update() {
+        start += step;
+        if (start >= to) {
+          element.textContent = to;
+        } else {
+          element.textContent = start;
+          requestAnimationFrame(update);
+        }
+      }
+      update();
+    }
+
+    function processData(data) {
+      const postDateCounts = {};
+      const qualificationCounts = {};
+      const lastDateCounts = {};
+      const durations = [];
+
+      data.forEach(row => {
+        const postDateStr = row['Post Date'];
+        const lastDateStr = row['Last Date'];
+        const qualification = row['Qualification'] || 'Unknown';
+
+        if (postDateStr) {
+          postDateCounts[postDateStr] = (postDateCounts[postDateStr] || 0) + 1;
+        }
+        if (qualification) {
+          qualificationCounts[qualification] = (qualificationCounts[qualification] || 0) + 1;
+        }
+        if (lastDateStr) {
+          lastDateCounts[lastDateStr] = (lastDateCounts[lastDateStr] || 0) + 1;
+        }
+        const postDate = parseDate(postDateStr);
+        const lastDate = parseDate(lastDateStr);
+        if (postDate && lastDate && lastDate >= postDate) {
+          const diffDays = Math.round((lastDate - postDate) / (1000 * 60 * 60 * 24));
+          durations.push(diffDays);
+        }
+      });
+
+      // Summary values
+      const totalJobPostings = data.length;
+      let topQualification = '-';
+      let maxQ = 0;
+      for (const [q, count] of Object.entries(qualificationCounts)) {
+        if (count > maxQ) {
+          maxQ = count;
+          topQualification = q;
+        }
+      }
+      let mostCommonDeadline = '-';
+      let maxD = 0;
+      for (const [d, count] of Object.entries(lastDateCounts)) {
+        if (count > maxD) {
+          maxD = count;
+          mostCommonDeadline = d;
+        }
+      }
+      // If no deadline is common, show dash
+      if (maxD <= 1) mostCommonDeadline = '–';
+
+      // Update summary cards
+      const totalElem = document.getElementById('totalJobPostings');
+      const qualElem = document.getElementById('topQualification');
+      const deadlineElem = document.getElementById('mostCommonDeadline');
+      if (totalElem) animateNumber(totalElem, totalJobPostings);
+      if (qualElem) qualElem.textContent = topQualification;
+      if (deadlineElem) deadlineElem.textContent = mostCommonDeadline;
+
+      renderJobPostingsOverTime(postDateCounts);
+      renderPostingLifecycleHistogram(durations);
+      renderPostingsByQualification(qualificationCounts);
+      renderPostingLifecycleBoxPlot(durations);
+    }
+
+    function renderJobPostingsOverTime(data) {
+      const dates = Object.keys(data).sort((a,b) => new Date(a) - new Date(b));
+      const counts = dates.map(d => data[d]);
+
+      Plotly.newPlot('jobPostingsOverTime', [{
+        x: dates,
+        y: counts,
+        type: 'scatter',
+        mode: 'lines+markers',
+        marker: {color: '#60a5fa'},
+        line: {color: '#60a5fa'}
+      }], {
+        margin: {t:30, b:100},
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        xaxis: {
+          title: 'Post Date',
+          tickangle: -45,
+          tickfont: { size: 10, color: '#9ca3af' },
+          gridcolor: '#374151',
+          color: '#9ca3af'
+        },
+        yaxis: {
+          title: 'Number of Job Postings',
+          gridcolor: '#374151',
+          color: '#9ca3af'
+        }
+      });
+    }
+
+    function renderPostingLifecycleHistogram(durations) {
+      Plotly.newPlot('postingLifecycleHistogram', [{
+        x: durations,
+        type: 'histogram',
+        nbinsx: 30,
+        marker: {color: '#f97316'},
+        opacity: 0.8
+      }], {
+        margin: {t:30},
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        xaxis: {
+          title: 'Duration (days)',
+          gridcolor: '#374151',
+          color: '#9ca3af'
+        },
+        yaxis: {
+          title: 'Number of Job Postings',
+          gridcolor: '#374151',
+          color: '#9ca3af'
+        }
+      });
+    }
+
+    function renderPostingsByQualification(data) {
+      const sortedEntries = Object.entries(data).sort((a, b) => b[1] - a[1]).slice(0, 20);
+      const qualifications = sortedEntries.map(([q]) => q);
+      const counts = sortedEntries.map(([, count]) => count);
+
+      Plotly.newPlot('postingsByQualification', [{
+        labels: qualifications,
+        values: counts,
+        type: 'pie',
+        marker: {
+          colors: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe']
+        },
+        textinfo: 'label+percent',
+        textposition: 'outside',
+        textfont: {color: '#9ca3af'}
+      }], {
+        margin: {t:30},
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)'
+      });
+    }
+
+    function renderPostingLifecycleBoxPlot(durations) {
+      Plotly.newPlot('postingLifecycleBoxPlot', [{
+        y: durations,
+        type: 'box',
+        boxpoints: 'all',
+        jitter: 0.5,
+        pointpos: -1.8,
+        marker: {color: '#ef4444'},
+        boxmean: true,
+        fillcolor: '#374151'
+      }], {
+        margin: {t:30},
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        yaxis: {
+          title: 'Duration (days)',
+          gridcolor: '#374151',
+          color: '#9ca3af'
+        }
+      });
+    }
+  </script>
+</body>
+</html> 
