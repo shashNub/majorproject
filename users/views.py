@@ -83,17 +83,19 @@ def registerUser(request):
             expires = timezone.now() + timedelta(minutes=10)
             UserOTP.objects.filter(user=user, purpose="signup").delete()
             UserOTP.objects.create(user=user, code=code, purpose="signup", expires_at=expires)
-            try:
-                send_mail(
-                    subject="Your verification code",
-                    message=f"Your OTP is {code}. It expires in 10 minutes.",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                messages.error(request, "Could not send OTP email. Please try again.")
-                return redirect('register')
+            # Temporarily skip email sending in production until SMTP is configured
+            if settings.DEBUG:
+                try:
+                    send_mail(
+                        subject="Your verification code",
+                        message=f"Your OTP is {code}. It expires in 10 minutes.",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[ user.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    messages.error(request, "Could not send OTP email. Please try again.")
+                    return redirect('register')
 
             # Option A: Django OTP flow (kept) — or Firebase email link flow (auto-send page)
             request.session['otp_user_id'] = user.id
@@ -154,17 +156,21 @@ def resend_otp(request):
     expires = timezone.now() + timedelta(minutes=10)
     UserOTP.objects.filter(user=user, purpose="signup").delete()
     UserOTP.objects.create(user=user, code=code, purpose="signup", expires_at=expires)
-    try:
-        send_mail(
-            subject="Your verification code",
-            message=f"Your OTP is {code}. It expires in 10 minutes.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-        messages.success(request, "OTP resent. Check your email.")
-    except Exception:
-        messages.error(request, "Could not resend OTP. Please try again.")
+            # Temporarily skip email sending in production
+            if settings.DEBUG:
+                try:
+                    send_mail(
+                        subject="Your verification code",
+                        message=f"Your OTP is {code}. It expires in 10 minutes.",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+                    messages.success(request, "OTP resent. Check your email.")
+                except Exception:
+                    messages.error(request, "Could not resend OTP. Please try again.")
+            else:
+                messages.info(request, "In production mode, please use Firebase email verification.")
     return redirect('verify_otp')
 
 @login_required
