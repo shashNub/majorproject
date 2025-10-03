@@ -6,24 +6,14 @@
   <div id="status" class="text-sm text-gray-600 dark:text-gray-300">Processing…</div>
 </div>
 <script>
-  // Firebase config injected per user's project
-  const firebaseConfig = {
-    apiKey: "AIzaSyDez68o2cRBmFO70JEkQbDpmwQPoElleM0",
-    authDomain: "majorproject-7c9eb.firebaseapp.com",
-    projectId: "majorproject-7c9eb",
-    storageBucket: "majorproject-7c9eb.firebasestorage.app",
-    messagingSenderId: "635941312909",
-    appId: "1:635941312909:web:b6c65671605da5c13dc5c4",
-    measurementId: "G-W2BDN223RB"
-  };
+  // Firebase config from server settings
+  const firebaseConfig = {{ firebase_config|safe }};
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script>
-  // Prefer explicitly provided config (embedded above), otherwise fall back to server-provided settings
-  const cfg = (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey)
-    ? firebaseConfig
-    : {{ firebase_config|safe }};
+  // Use Firebase config from server
+  const cfg = firebaseConfig;
   if (!cfg || !cfg.apiKey) {
     document.getElementById('status').textContent = 'Firebase config missing. Set FIREBASE_* env vars.';
   } else {
