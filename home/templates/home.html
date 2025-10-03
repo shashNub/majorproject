@@ -1,0 +1,146 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<main class="flex-1 flex flex-col items-center justify-center">
+    <!-- Filter section with normal width -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 md:p-10 mt-8 md:mt-12 max-w-2xl text-center border border-gray-100 dark:border-gray-700">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-blue-800 mb-2 md:mb-4">Find Your Dream Government Job</h1>
+        <p class="text-gray-600 dark:text-gray-300 mb-4 md:mb-8">Filter government job openings by your qualification and company.</p>
+        <form method="get" class="flex flex-col gap-2 md:gap-4 mb-4 md:mb-8">
+            {% csrf_token %}
+            <div class="flex flex-col md:flex-row gap-2 md:gap-4">
+                <!-- Qualification Filter -->
+                <div class="w-full">
+                    <label for="qualification" class="block text-left text-gray-700 dark:text-gray-200 font-medium mb-1 md:mb-2">Qualification</label>
+                    <select id="qualification" name="qualification" class="rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1 md:px-4 md:py-2 w-full">
+                        <option value="">All Qualifications</option>
+                        {% for qual in qualifications %}
+                            <option value="{{ qual }}" {% if selected_qualification == qual %}selected{% endif %}>{{ qual }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Company Filter -->
+                <div class="w-full">
+                    <label for="company" class="block text-left text-gray-700 dark:text-gray-200 font-medium mb-1 md:mb-2">Company</label>
+                    <select id="company" name="company" class="rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1 md:px-4 md:py-2 w-full">
+                        <option value="">All Companies</option>
+                        {% for c in companies %}
+                            <option value="{{ c }}" {% if selected_company == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="w-full md:w-auto bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-1 md:px-6 md:py-2 rounded-lg shadow self-center md:self-end">Filter Jobs</button>
+        </form>
+    </section>
+
+    <!-- Results section with increased width -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 md:p-10 mt-4 md:mt-8 w-full max-w-[95%] text-center border border-gray-100 dark:border-gray-700">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm table-fixed">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-800">
+                        {% if jobs and jobs.0 %}
+                            {% for key in jobs.0.keys %}
+                                {% if key != 'Post_Date' and key != 'Name' and key != 'Post' and key != 'Bank' and key != 'Job_Description' %}
+                                    <th class="sticky z-10 px-1 py-1 md:px-2 md:py-2 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap text-xs font-semibold max-w-[100px] md:max-w-[150px] truncate text-gray-700 dark:text-gray-200 backdrop-blur bg-gray-50/80 dark:bg-gray-800/80">{{ key }}</th>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                        <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700/60">
+                            {% for key, value in job.items %}
+                                {% if key != 'Post_Date' and key != 'Name' and key != 'Post' and key != 'Bank' and key != 'Job_Description' %}
+                                    <td class="px-1 py-1 md:px-2 md:py-2 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap text-xs max-w-[100px] md:max-w-[150px] truncate hover:overflow-visible hover:whitespace-normal hover:z-10 hover:bg-white dark:hover:bg-gray-900 hover:shadow-lg">
+                                        {% if key == "More Information" %}
+                                        <a href="{% url 'chatbot' %}?job_details=true&post_date={{ job.Post_Date|urlencode }}&name={{ job.Name|urlencode }}&post={{ job.Post|urlencode }}&bank={{ job.Bank|urlencode }}&job_description={{ job.Job_Description|urlencode }}&qualification={{ job.Qualification|urlencode }}&last_date={{ job.Last_Date|urlencode }}&advt_no={{ job.Advt_No|urlencode }}" 
+                                               class="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 md:px-3 md:py-1 rounded text-xs mr-1 md:mr-2">
+                                                <i class="fa-solid fa-circle-info"></i>
+                                                Get Details
+                                            </a>
+                                        <button 
+                                            class="save-btn inline-flex items-center gap-1 bg-gray-300 hover:bg-gray-400 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 px-2 py-0.5 md:px-3 md:py-1 rounded text-xs"
+                                            data-post-date="{{ job.Post_Date }}"
+                                            data-name="{{ job.Name }}"
+                                            data-post="{{ job.Post }}"
+                                            data-bank="{{ job.Bank }}"
+                                            data-job-description="{{ job.Job_Description }}"
+                                            data-qualification="{{ job.Qualification }}"
+                                            data-last-date="{{ job.Last_Date }}"
+                                            data-advt-no="{{ job.Advt_No }}"
+                                            >
+                                            <i class="fa-solid fa-bookmark"></i>
+                                            <span class="save-label">Save</span>
+                                        </button>
+                                        {% else %}
+                                            <span class="text-gray-800 dark:text-gray-100">{{ value }}</span>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="100%" class="text-center py-3 md:py-6">No jobs found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const saveButtons = document.querySelectorAll('.save-btn');
+        const csrfTokenEl = document.querySelector('[name=csrfmiddlewaretoken]');
+        const csrfToken = csrfTokenEl ? csrfTokenEl.value : '';
+
+        saveButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const label = btn.querySelector('.save-label');
+
+                const payloadRaw = {
+                    'Post Date': btn.dataset.postDate || '',
+                    'Name': btn.dataset.name || '',
+                    'Post': btn.dataset.post || '',
+                    'Bank': btn.dataset.bank || '',
+                    'Job Description': btn.dataset.jobDescription || '',
+                    'Qualification': btn.dataset.qualification || '',
+                    'Last Date': btn.dataset.lastDate || '',
+                    'Advt No': btn.dataset.advtNo || ''
+                };
+                const payload = Object.fromEntries(Object.entries(payloadRaw).filter(([_, v]) => v && String(v).trim().length > 0));
+
+                fetch('/toggle_wishlist/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: `job_details=${encodeURIComponent(JSON.stringify(payload))}`
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'added') {
+                        btn.classList.remove('bg-gray-300','hover:bg-gray-400','text-gray-700','dark:bg-gray-700','dark:hover:bg-gray-600','dark:text-gray-100');
+                        btn.classList.add('bg-green-500','hover:bg-green-600','text-white');
+                        if (label) label.textContent = 'Saved';
+                    } else if (data.status === 'removed') {
+                        btn.classList.remove('bg-green-500','hover:bg-green-600','text-white');
+                        btn.classList.add('bg-gray-300','hover:bg-gray-400','text-gray-700','dark:bg-gray-700','dark:hover:bg-gray-600','dark:text-gray-100');
+                        if (label) label.textContent = 'Save';
+                    } else if (data.status === 'error' && data.message === 'Invalid request') {
+                        window.location.href = '/users/user-login';
+                    } else {
+                        alert(data.message || 'Could not save job');
+                    }
+                })
+                .catch(() => alert('Network error. Please try again.'));
+            });
+        });
+    });
+</script>
+{% endblock content %}

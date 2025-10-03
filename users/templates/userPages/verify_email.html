@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="max-w-md mx-auto mt-12 bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-blue-100 dark:border-gray-700">
+  <h1 class="text-2xl font-bold text-blue-700 mb-4">Finalizing email verification…</h1>
+  <p class="text-gray-600 dark:text-gray-300 mb-6">Please wait while we complete verification.</p>
+  <div id="status" class="text-sm text-gray-600 dark:text-gray-300">Processing…</div>
+</div>
+<script>
+  // Firebase config injected per user's project
+  const firebaseConfig = {
+    apiKey: "AIzaSyDez68o2cRBmFO70JEkQbDpmwQPoElleM0",
+    authDomain: "majorproject-7c9eb.firebaseapp.com",
+    projectId: "majorproject-7c9eb",
+    storageBucket: "majorproject-7c9eb.firebasestorage.app",
+    messagingSenderId: "635941312909",
+    appId: "1:635941312909:web:b6c65671605da5c13dc5c4",
+    measurementId: "G-W2BDN223RB"
+  };
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script>
+  // Prefer explicitly provided config (embedded above), otherwise fall back to server-provided settings
+  const cfg = (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey)
+    ? firebaseConfig
+    : {{ firebase_config|safe }};
+  if (!cfg || !cfg.apiKey) {
+    document.getElementById('status').textContent = 'Firebase config missing. Set FIREBASE_* env vars.';
+  } else {
+    firebase.initializeApp(cfg);
+    const auth = firebase.auth();
+    (async function finish() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get('mode');
+        const oobCode = params.get('oobCode');
+        if (mode === 'verifyEmail' && oobCode) {
+          await auth.applyActionCode(oobCode);
+          await auth.currentUser?.reload();
+          const user = auth.currentUser;
+          if (!user) {
+            document.getElementById('status').textContent = 'Please sign in first, then re-open the link.';
+            return;
+          }
+          const idToken = await user.getIdToken(true);
+          const res = await fetch('/users/auth/firebase/email-verified/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ idToken })
+          });
+          const data = await res.json();
+          if (data.ok) {
+            window.location = '/';
+          } else {
+            document.getElementById('status').textContent = 'Verification failed: ' + (data.error || 'Unknown error');
+          }
+        } else {
+          document.getElementById('status').textContent = 'Invalid verification link.';
+        }
+      } catch (e) {
+        document.getElementById('status').textContent = 'Error: ' + e;
+      }
+    })();
+  }
+</script>
+{% endblock content %}
+

@@ -1,0 +1,41 @@
+# Environment Variables Template for Render.com Deployment
+# Copy these variables to your Render dashboard Environment Variables section
+
+# Django Core Settings
+SECRET_KEY=your-very-secure-secret-key-here-generate-a-new-one
+DEBUG=False
+ALLOWED_HOSTS=your-app-name.onrender.com
+DJANGO_SETTINGS_MODULE=root.settings_production
+
+# Database (Optional - will use PostgreSQL if provided)
+# DATABASE_URL=postgresql://user:password@host:port/database
+
+# Security Settings
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+
+# Email Configuration (for notifications)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+DEFAULT_FROM_EMAIL=noreply@yourdomain.com
+
+# Site URL (replace with your actual Render URL)
+SITE_URL=https://your-app-name.onrender.com
+
+# Firebase Configuration (for email verification)
+FIREBASE_API_KEY=your-firebase-api-key
+FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+FIREBASE_APP_ID=your-app-id
+
+# Firebase Admin SDK (for backend verification)
+# Upload your service account JSON file to Render and set the path
+GOOGLE_APPLICATION_CREDENTIALS=/opt/render/project/src/firebase-service-account.json
+
+# Optional: Google AI API (for chatbot functionality)
+# GOOGLE_API_KEY=your-google-ai-api-key
