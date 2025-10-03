@@ -156,21 +156,21 @@ def resend_otp(request):
     expires = timezone.now() + timedelta(minutes=10)
     UserOTP.objects.filter(user=user, purpose="signup").delete()
     UserOTP.objects.create(user=user, code=code, purpose="signup", expires_at=expires)
-            # Temporarily skip email sending in production
-            if settings.DEBUG:
-                try:
-                    send_mail(
-                        subject="Your verification code",
-                        message=f"Your OTP is {code}. It expires in 10 minutes.",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[user.email],
-                        fail_silently=False,
-                    )
-                    messages.success(request, "OTP resent. Check your email.")
-                except Exception:
-                    messages.error(request, "Could not resend OTP. Please try again.")
-            else:
-                messages.info(request, "In production mode, please use Firebase email verification.")
+    # Temporarily skip email sending in production
+    if settings.DEBUG:
+        try:
+            send_mail(
+                subject="Your verification code",
+                message=f"Your OTP is {code}. It expires in 10 minutes.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            messages.success(request, "OTP resent. Check your email.")
+        except Exception:
+            messages.error(request, "Could not resend OTP. Please try again.")
+    else:
+        messages.info(request, "In production mode, please use Firebase email verification.")
     return redirect('verify_otp')
 
 @login_required
