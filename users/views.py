@@ -18,13 +18,27 @@ import os
 
 # Optional Firebase Admin for email-link verification
 try:
-    import firebase_admin
-    from firebase_admin import credentials, auth as fb_auth
+import firebase_admin
+from firebase_admin import credentials, auth as fb_auth
+import json
+import os
     if not firebase_admin._apps:
-        cred_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-        if cred_path and os.path.exists(cred_path):
-            cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred)
+        # Try environment variable first (for Render)
+        service_account_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
+        if service_account_json:
+            try:
+                service_account_info = json.loads(service_account_json)
+                cred = credentials.Certificate(service_account_info)
+                firebase_admin.initialize_app(cred)
+            except (json.JSONDecodeError, ValueError):
+                pass
+        
+        # Fallback to file path (for local development)
+        if not firebase_admin._apps:
+            cred_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+            if cred_path and os.path.exists(cred_path):
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
 except Exception:
     firebase_admin = None
 
